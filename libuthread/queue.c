@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "queue.h"
 
@@ -12,7 +13,6 @@ struct Node {
 };
 
 struct queue {
-	/* TODO Phase 1 */
 	struct Node* head;
 	struct Node* back;
 };
@@ -34,21 +34,19 @@ queue_t queue_create(void)
 
 int queue_destroy(queue_t queue)
 {
-	/* TODO Phase 1 */
 	if(queue == NULL || queue->head != NULL) {
 	    return -1;
 	} // If: Queue is NULL, or Queue is not empty
 
 	free(queue);
 	return 0;
-} // queue_destroy()
+} // queue_destroy() -- Tested
 
 int queue_enqueue(queue_t queue, void *data)
 {
-	/* TODO Phase 1 */
-	if(queue == NULL || data == NULL) {
-	    return -1;
-	} // If: Queue or Data is NULL
+    if(queue == NULL || data == NULL) {
+        return -1;
+    } // If: Queue or Data is NULL
 
 	if(queue->head == NULL) {
 	    queue->head = (struct Node*)malloc(sizeof(struct Node));
@@ -61,12 +59,15 @@ int queue_enqueue(queue_t queue, void *data)
 	    queue->back = queue->back->next;
 	} // Else: Existing Queue
 
+	if(queue->head == NULL) {
+	    return -1;
+	} // If: Failed to Malloc
+
 	return 0;
 } // queue_enqueue() -- Tested
 
 int queue_dequeue(queue_t queue, void **data)
 {
-	/* TODO Phase 1 */
 	if(queue == NULL || data == NULL || queue->head == NULL) {
 	    return -1;
 	} // If: Queue/Data is NULL, or if Queue is Empty
@@ -85,20 +86,37 @@ int queue_delete(queue_t queue, void *data)
         return -1;
     } // If: Queue is NULL or Data is NULL
 
-	struct Node *findNode = queue->head;
+    struct Node *current = NULL;
+	struct Node *prev = NULL;
+	struct Node *deleteNode = NULL;
 
-	while(findNode->next != NULL && findNode->next->data != data) {
-        findNode = findNode->next;
-	} // Find the Node which holds the data to delete
+	for(current = queue->head; current != queue->back; current = current->next) {
+	    if(current->next->data == data)
+	        prev = current;
+	} // Loop through Queue
 
-	if(findNode->next == NULL) {
-	    return -1;
-	} // If: Data not found TODO: What if last
+	if(prev == NULL) {
+        if(queue->head->data == data) {
+            deleteNode = queue->head;
+            queue->head = queue->head->next;
+            free(deleteNode);
+        } // If: First element holds data
+        else {
+            return -1;
+        } // Else: Data not found
+	} // If: Found in Queue
 	else {
-	    struct Node *deleteNode = findNode->next;
-	    findNode->next = findNode->next->next;
-	    free(deleteNode);
-	} // Else: Data is found
+        deleteNode = prev->next;
+        if(prev->next == queue->back) {
+            prev->next = NULL;
+            queue->back = prev;
+        } // Edge Case: delete last element
+        else {
+            prev->next = prev->next->next;
+        } // Else: normal delete
+
+        free(deleteNode);
+	} // Else: Found in Queue
 
 	return 0;
 } // queue_delete -- Tested
@@ -110,6 +128,27 @@ int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 
 int queue_length(queue_t queue)
 {
-	/* TODO Phase 1 */
+    int count = 0;
+
+	if(queue == NULL)
+	    return -1;
+	if(queue->head == NULL)
+	    return 0;
+
+    for(struct Node *current = queue->head; current != queue->back; current = current->next)
+        count += 1;
+
+	return count + 1; // To take into account the last element
+}
+
+int print_queue(queue_t queue) {
+    printf("Printing Queue:\n");
+    for(struct Node *current = queue->head; current != queue->back; current = current->next) {
+        printf("%d ", *(int*)current->data);
+    }
+    printf("%d", *(int*)queue->back->data);
+    printf("\n--------------------------\n\n");
+
+    return 0;
 }
 
