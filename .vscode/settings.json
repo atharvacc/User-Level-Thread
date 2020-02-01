@@ -2,6 +2,7 @@
     "files.associations": {
         "chrono": "c",
         "unordered_map": "c",
-        "bitset": "c"
+        "bitset": "c",
+        "stdlib.h": "c"
     }
 }

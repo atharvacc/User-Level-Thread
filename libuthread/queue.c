@@ -79,3 +79,8 @@ int queue_length(queue_t queue)
 	/* TODO Phase 1 */
 }
 
+int main()
+{
+    queue_t newqueue = queue_create();
+	return 0;
+}
