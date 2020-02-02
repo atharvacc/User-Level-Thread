@@ -10,6 +10,11 @@ struct queue {
 	void *TAIL; 
 };
 
+struct myData{
+	void *data;
+	struct myData* next;
+};
+
 
 /*
  * queue_create - Allocate an empty queue
