@@ -123,7 +123,25 @@ int queue_delete(queue_t queue, void *data)
 
 int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 {
-	/* TODO Phase 1 */
+    if(queue == NULL || func == NULL)
+        return -1;
+
+	struct Node *current = NULL;
+	for(current = queue->head; current != queue->back; current = current->next) {
+	    if(func(current->data, arg) == 1) {
+	        if(current->data != NULL)
+	            data = current->data;
+	        break;
+	    } // If: @func returns 1. Stop prematurely
+	} // Loop: through Queue
+
+	// Account for last element
+	struct Node *lastElement = queue->back;
+    if(func(lastElement->data, arg) == 1)
+        if(lastElement->data != NULL)
+            data = lastElement->data;
+
+	return 0;
 }
 
 int queue_length(queue_t queue)
@@ -152,3 +170,8 @@ int print_queue(queue_t queue) {
     return 0;
 }
 
+int add_n(void *data, void *arg) {
+    *(int*)data += *(int*)arg;
+
+    return 0;
+} // Sample Function for 'queue_iterate'
