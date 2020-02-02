@@ -123,7 +123,27 @@ int queue_delete(queue_t queue, void *data)
 
 int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 {
-	return 0;
+	if (queue == NULL || func ==NULL){
+		return -1;
+	}
+	for(struct Node *current = queue->head; current != queue->back; current = current->next) {
+
+		if(func(current->data, arg)){
+			if(data!=NULL){
+				*data = current->data;
+			}
+			return 0;
+		}  
+    } //end for
+	
+	//Do the same for the last element
+	if(func(queue->back->data, arg)){
+			if(data!=NULL){
+				*data = queue->back->data;
+			}
+			return 0;
+		} 
+    return 0;
 }
 
 int queue_length(queue_t queue)
@@ -151,11 +171,26 @@ int print_queue(queue_t queue) {
 
     return 0;
 }
+static int inc_item(void *data, void *arg)
+{
+    int *a = (int*)data;
+    int inc = (int)(long)arg;
+
+    *a += inc;
+
+    return 0;
+}
 
 int main(){
 	queue_t newQueue = queue_create();
-	queue_enqueue(newQueue, 5);
-	print_queue( newQueue);
+	
+	int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
+    
 
+    for(int i = 0; i < 10; i++) {
+        queue_enqueue(newQueue, &dataArray[i]);
+    }
+	queue_iterate(newQueue, inc_item, (void*)1, NULL);
+	print_queue( newQueue);
 	return 0;
 }
