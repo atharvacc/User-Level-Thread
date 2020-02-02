@@ -123,7 +123,7 @@ int queue_delete(queue_t queue, void *data)
 
 int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 {
-	/* TODO Phase 1 */
+	return 0;
 }
 
 int queue_length(queue_t queue)
@@ -152,3 +152,10 @@ int print_queue(queue_t queue) {
     return 0;
 }
 
+int main(){
+	queue_t newQueue = queue_create();
+	queue_enqueue(newQueue, 5);
+	print_queue( newQueue);
+
+	return 0;
+}
