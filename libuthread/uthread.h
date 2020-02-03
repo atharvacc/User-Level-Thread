@@ -1,6 +1,8 @@
 #ifndef _UTHREAD_H
 #define _UTHREAD_H
 
+enum state{INIT_STATE = 0, READY_STATE = 1, RUNNING_STATE = 2, WAITING_STATE = 3, FINISHED_STATE = 4};
+
 /*
  * uthread_t - Thread identifier (TID) type
  *
@@ -32,6 +34,7 @@ typedef int (*uthread_func_t)(void *arg);
  * overflow, etc.). The TID of the new thread otherwise.
  */
 int uthread_create(uthread_func_t func, void *arg);
+int init_main_thread();
 
 /*
  * uthread_self - Get thread identifier

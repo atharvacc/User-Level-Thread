@@ -41,6 +41,7 @@ int thread1(void* arg)
 
 int main(void)
 {
+    // Should prints: 2,1,3
 	uthread_join(uthread_create(thread1, NULL), NULL);
 	return 0;
 }
