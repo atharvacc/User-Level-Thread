@@ -123,7 +123,29 @@ int queue_delete(queue_t queue, void *data)
 
 	return 0;
 } // queue_delete -- Tested
+/*
+int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
+{
+    if(queue == NULL || func == NULL)
+        return -1;
 
+	struct Node *current = NULL;
+	for(current = queue->head; current != queue->back; current = current->next) {
+	    if(func(current->data, arg) == 1) {
+	        if(current->data != NULL)
+	            data = current->data;
+	        break;
+	    } // If: @func returns 1. Stop prematurely
+	} // Loop: through Queue
+
+	// Account for last element
+	struct Node *lastElement = queue->back;
+    if(func(lastElement->data, arg) == 1)
+        if(lastElement->data != NULL)
+            data = lastElement->data;
+
+	return 0;
+}*/
 int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 {
 	if (queue == NULL || func ==NULL){
@@ -136,16 +158,16 @@ int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 				*data = current->data;
 			}
 			return 0;
-		}  
+		}
     } //end for
-	
+
 	//Do the same for the last element
 	if(func(queue->back->data, arg)){
 			if(data!=NULL){
 				*data = queue->back->data;
 			}
 			return 0;
-		} 
+		}
     return 0;
 }
 

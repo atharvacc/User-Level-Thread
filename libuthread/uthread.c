@@ -44,13 +44,10 @@ void uthread_yield(void)
 	}
 
 	queue_dequeue(READY, (void**)&nextThread); // Get next thread in queue
-	//printf("len of readyQuee now is %d\n", queue_length(READY));
 	cur_tcb = nextThread; //Get the next thread
 	cur_tcb-> state = 1; // Set state to running
 	ucontext_t* curContext = &(currThread->context); // Get current Context
 	ucontext_t* nextContext = &(cur_tcb->context); // Get next context
-//	printf("new TID IS %d\n", nextThread->TID);
-//	printf("Curr TID IS %d\n", currThread->TID);
 	uthread_ctx_switch(curContext, nextContext) ; //make the next thread start
 	
 }
@@ -111,15 +108,17 @@ void uthread_exit(int retval)
 	struct TCB *curThread = cur_tcb;// create a copy of the current running thread
 	
 	//If blocking something then unblock that and add to READY
+
 	void *blockedThread;
 	
 	if (queue_iterate(BLOCKED, find_item, (void*)(long)curThread->TID, &blockedThread) == 0){
 	struct TCB *threadBlocked = (struct TCB*)blockedThread ;
 	threadBlocked->tidWait = -2;
 	queue_delete(BLOCKED, &threadBlocked);
-	queue_enqueue(READY, threadBlocked); 
-	}
-	
+	if(threadBlocked->isBlocked == 1){
+	queue_enqueue(READY, threadBlocked);
+	}	
+	}	
 	struct TCB* nextThread;
 	queue_dequeue(READY, &nextThread);
 	cur_tcb = nextThread;
