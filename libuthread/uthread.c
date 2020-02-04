@@ -82,6 +82,12 @@ void uthread_exit(int retval)
 	new_tcb ->retVal = retval; // assign retval to that tcb
 	new_tcb -> state = 4;
 	queue_enqueue(ZOMBIE, new_tcb); // add to zombie que
+	struct TCB* nextThread;
+	if (queue_length(READY)!=0){
+		queue_dequeue(READY, &nextThread);
+		uthread_ctx_switch(&(new_tcb->context), &(nextThread->context));
+	}
+	
 
 }
 
