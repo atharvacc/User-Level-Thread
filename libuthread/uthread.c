@@ -36,13 +36,15 @@ void uthread_yield(void)
 	new_tcb->state = 0; // Set currently running state to READY
 	struct TCB* currThread = new_tcb; // Create a COPY of the currently running thread
 	struct TCB* nextThread;
-	queue_enqueue(READY, currThread); // Add to ready queue
-	queue_dequeue(READY, &nextThread); // Get next thread in queue
-	printf("len of readyQuee now is %d\n", queue_length(READY));
+	queue_enqueue(READY, (void**)currThread); // Add to ready queue
+	queue_dequeue(READY, (void**)&nextThread); // Get next thread in queue
+	//printf("len of readyQuee now is %d\n", queue_length(READY));
 	new_tcb = nextThread; //Get the next thread
 	new_tcb-> state = 1; // Set state to running
 	ucontext_t* curContext = &(currThread->context); // Get current Context
 	ucontext_t* nextContext = &(nextThread->context); // Get next context
+	printf("new TID IS %d\n", nextThread->TID);
+	printf("Curr TID IS %d\n", currThread->TID);
 	uthread_ctx_switch(curContext, nextContext) ; //make the next thread start
 	
 }
@@ -84,9 +86,13 @@ void uthread_exit(int retval)
 	queue_enqueue(ZOMBIE, new_tcb); // add to zombie que
 	struct TCB* nextThread;
 	if (queue_length(READY)!=0){
+		printf("IN here\n");
 		queue_dequeue(READY, &nextThread);
 		uthread_ctx_switch(&(new_tcb->context), &(nextThread->context));
 	}
+	queue_dequeue(BLOCKED, (void**)&nextThread);
+	printf("tid is %d", nextThread->TID); 
+	uthread_ctx_switch(&(new_tcb->context), &(nextThread->context));
 	
 
 }
@@ -96,15 +102,17 @@ int uthread_join(uthread_t tid, int *retval)
 	if (BLOCKED == NULL){ // Create BLOCKED if not created yet
 		BLOCKED = queue_create();
 	}
-	int len = queue_length(READY);
-		
-	while(queue_length(READY) != 0){
-		printf("here\n");
-		uthread_yield();
+	struct TCB * nextThread;
+	struct TCB * curThread = malloc(sizeof(struct TCB));
+	curThread->TID = 0;
+	queue_dequeue(READY, (void**)&nextThread); // Get next thread in queue
+	queue_enqueue(BLOCKED, curThread);
+	uthread_ctx_switch(&(curThread->context), &(nextThread->context));	
+	while(queue_length(BLOCKED) != 0 ){
 	}
 	
 
-	
+		
 	/* TODO Phase 3 */
 	return 0;
 }
@@ -122,7 +130,7 @@ int main(void)
 	printf("TID IS %d\n", tid);
 	
 	uthread_join(tid, NULL);
-
+	printf("Done\n");
 	return 0;
 }
 
