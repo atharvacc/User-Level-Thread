@@ -32,11 +32,13 @@ void uthread_yield(void)
 	if (READY == NULL){ // If nothing is in queue or it was never initialized
 		return;
 	}
+	
 	new_tcb->state = 0; // Set currently running state to READY
 	struct TCB* currThread = new_tcb; // Create a COPY of the currently running thread
 	struct TCB* nextThread;
 	queue_enqueue(READY, currThread); // Add to ready queue
-	queue_dequeue(READY, (void**)nextThread); // Get next thread in queue
+	queue_dequeue(READY, &nextThread); // Get next thread in queue
+	printf("len of readyQuee now is %d\n", queue_length(READY));
 	new_tcb = nextThread; //Get the next thread
 	new_tcb-> state = 1; // Set state to running
 	ucontext_t* curContext = &(currThread->context); // Get current Context
@@ -76,6 +78,7 @@ void uthread_exit(int retval)
 	if (ZOMBIE == NULL){ // create zombie if we're in the first state
 		ZOMBIE = queue_create();
 	}
+	printf("IN ZOMBIEEEE \n");
 	new_tcb ->retVal = retval; // assign retval to that tcb
 	new_tcb -> state = 4;
 	queue_enqueue(ZOMBIE, new_tcb); // add to zombie que
@@ -87,8 +90,10 @@ int uthread_join(uthread_t tid, int *retval)
 	if (BLOCKED == NULL){ // Create BLOCKED if not created yet
 		BLOCKED = queue_create();
 	}
-	READY = queue_create();
+	int len = queue_length(READY);
+		
 	while(queue_length(READY) != 0){
+		printf("here\n");
 		uthread_yield();
 	}
 	
@@ -107,8 +112,9 @@ int hello(void* arg)
 int main(void)
 {
 	uthread_t tid;
-
 	tid = uthread_create(hello, NULL);
+	printf("TID IS %d\n", tid);
+	
 	uthread_join(tid, NULL);
 
 	return 0;

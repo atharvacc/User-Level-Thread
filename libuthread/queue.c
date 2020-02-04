@@ -184,6 +184,7 @@ static int inc_item(void *data, void *arg)
     return 0;
 }
 
+/*
 int main(){
 	queue_t newQueue = queue_create();
 	
@@ -202,4 +203,4 @@ int main(){
 	int d = queue_length(newQueue);
 	printf("boo lis %d\n",d);
 	return 0;
-}
+}*/
