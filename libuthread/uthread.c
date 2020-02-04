@@ -116,9 +116,13 @@ void uthread_exit(int retval)
 	threadBlocked->tidWait = -2;
 	queue_delete(BLOCKED, &threadBlocked);
 	if(threadBlocked->isBlocked == 1){
+	threadBlocked->retVal = retval; 
+	uthread_ctx_destroy_stack(curThread->stack);
+	free(curThread);
 	queue_enqueue(READY, threadBlocked);
 	}	
-	}	
+	}
+	//printf("length of READY is %d \n", queue_length(READY));	
 	struct TCB* nextThread;
 	queue_dequeue(READY, &nextThread);
 	cur_tcb = nextThread;
@@ -135,6 +139,7 @@ int uthread_join(uthread_t tid, int *retval)
 	}
 	cur_tcb ->tidWait = tid;
 	cur_tcb -> isBlocked = 1;
+	
 	queue_enqueue(BLOCKED, cur_tcb);
 	//printf("cur_tcb has tid: %d \n", cur_tcb->TID);
 	//printf("length of ready queue is: %d \n", queue_length(READY));
