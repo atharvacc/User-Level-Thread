@@ -52,11 +52,14 @@ int queue_enqueue(queue_t queue, void *data)
 	    queue->head = (struct Node*)malloc(sizeof(struct Node));
 	    queue->head->data = data;
 	    queue->back = queue->head;
+		queue->head->next = NULL;
 	} // If: Empty Queue
 	else {
 	    queue->back->next = (struct Node*)malloc(sizeof(struct Node));
 	    queue->back->next->data = data;
 	    queue->back = queue->back->next;
+		queue->back->next = NULL;
+		
 	} // Else: Existing Queue
 
 	if(queue->head == NULL) {
@@ -159,7 +162,7 @@ int queue_length(queue_t queue)
         count += 1;
 
 	return count + 1; // To take into account the last element
-}
+} // Has error. for empty queue doesn't wokr as expected
 
 int print_queue(queue_t queue) {
     printf("Printing Queue:\n");
@@ -190,7 +193,13 @@ int main(){
     for(int i = 0; i < 10; i++) {
         queue_enqueue(newQueue, &dataArray[i]);
     }
-	queue_iterate(newQueue, inc_item, (void*)1, NULL);
-	print_queue( newQueue);
+	
+	for(int i = 0; i < 7; i++) {
+		int* out;
+        queue_dequeue(newQueue, (void**)&out);
+    }
+	
+	int d = queue_length(newQueue);
+	printf("boo lis %d\n",d);
 	return 0;
 }
