@@ -17,9 +17,11 @@ struct TCB {
 	void *stack;
 	int state; // 0 for READY, 1 RUNNING, 2 for BLOCKED, 3 for ZOMBIE
 	int retVal; // Store return value
+	int isBlocked; // Check if is blocked
 };
 
 struct TCB *new_tcb; // Initialize a TCB
+struct TCB *cur_tcb; // Currentlyt runnning TCB
 int cur_TID = 0; // Initialize cur_TID to 1, since parent has tid 0
 
 
@@ -33,16 +35,16 @@ void uthread_yield(void)
 		return;
 	}
 	
-	new_tcb->state = 0; // Set currently running state to READY
-	struct TCB* currThread = new_tcb; // Create a COPY of the currently running thread
+	cur_tcb->state = 0; // Set currently running state to READY
+	struct TCB* currThread = cur_tcb; // Create a COPY of the currently running thread
 	struct TCB* nextThread;
 	queue_enqueue(READY, (void**)currThread); // Add to ready queue
 	queue_dequeue(READY, (void**)&nextThread); // Get next thread in queue
 	//printf("len of readyQuee now is %d\n", queue_length(READY));
-	new_tcb = nextThread; //Get the next thread
-	new_tcb-> state = 1; // Set state to running
+	cur_tcb = nextThread; //Get the next thread
+	cur_tcb-> state = 1; // Set state to running
 	ucontext_t* curContext = &(currThread->context); // Get current Context
-	ucontext_t* nextContext = &(nextThread->context); // Get next context
+	ucontext_t* nextContext = &(cur_tcb->context); // Get next context
 	printf("new TID IS %d\n", nextThread->TID);
 	printf("Curr TID IS %d\n", currThread->TID);
 	uthread_ctx_switch(curContext, nextContext) ; //make the next thread start
@@ -51,7 +53,7 @@ void uthread_yield(void)
 
 uthread_t uthread_self(void)
 {
-	return new_tcb->TID;
+	return cur_tcb->TID;
 }
 
 /* Create a new thread with the function and args */
@@ -59,6 +61,8 @@ int uthread_create(uthread_func_t func, void *arg)
 {
 	if (READY == NULL){
 		READY = queue_create();
+		cur_tcb = malloc(sizeof(struct TCB));
+		cur_tcb->TID = 0;
 		cur_TID++;
 	}
 	new_tcb = malloc(sizeof(struct TCB));
@@ -69,7 +73,7 @@ int uthread_create(uthread_func_t func, void *arg)
 	if (retval == -1){
 		return -1;
 	}
-	new_tcb->state = 0;
+	new_tcb->state = 0;//READY
 	queue_enqueue(READY, new_tcb);
 	cur_TID++;
 	return new_tcb->TID;
@@ -81,20 +85,17 @@ void uthread_exit(int retval)
 		ZOMBIE = queue_create();
 	}
 	printf("IN ZOMBIEEEE \n");
-	new_tcb ->retVal = retval; // assign retval to that tcb
-	new_tcb -> state = 4;
-	queue_enqueue(ZOMBIE, new_tcb); // add to zombie que
+	cur_tcb ->retVal = retval; // assign retval to that tcb
+	cur_tcb -> state = 4;
+	queue_enqueue(ZOMBIE, cur_tcb); // add to zombie que
 	struct TCB* nextThread;
 	if (queue_length(READY)!=0){
-		printf("IN here\n");
 		queue_dequeue(READY, &nextThread);
-		uthread_ctx_switch(&(new_tcb->context), &(nextThread->context));
+		struct TCB *curThread = cur_TCB;
+		cur_TCB = nextThread;
+		uthread_ctx_switch(&(curThread->context), &(cur_TCB->context));
 	}
-	queue_dequeue(BLOCKED, (void**)&nextThread);
-	printf("tid is %d", nextThread->TID); 
-	uthread_ctx_switch(&(new_tcb->context), &(nextThread->context));
 	
-
 }
 
 int uthread_join(uthread_t tid, int *retval)
@@ -102,18 +103,7 @@ int uthread_join(uthread_t tid, int *retval)
 	if (BLOCKED == NULL){ // Create BLOCKED if not created yet
 		BLOCKED = queue_create();
 	}
-	struct TCB * nextThread;
-	struct TCB * curThread = malloc(sizeof(struct TCB));
-	curThread->TID = 0;
-	queue_dequeue(READY, (void**)&nextThread); // Get next thread in queue
-	queue_enqueue(BLOCKED, curThread);
-	uthread_ctx_switch(&(curThread->context), &(nextThread->context));	
-	while(queue_length(BLOCKED) != 0 ){
-	}
 	
-
-		
-	/* TODO Phase 3 */
 	return 0;
 }
 
