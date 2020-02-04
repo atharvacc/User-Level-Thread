@@ -91,11 +91,7 @@ static int find_item(void *data, void *arg)
 {
     struct TCB  *a = (struct TCB*)data;
     int match = (int)(long)arg;
-    printf("this has TID: %d \n", a->TID);
-    printf("match is: %d \n", match);
-    printf("joinTID is %d \n", a ->tidWait);
     if (a->tidWait == match){
-	printf(" MATCHED \n");
         return 1;
     }
 
@@ -118,13 +114,12 @@ void uthread_exit(int retval)
 	void *blockedThread;
 	
 	if (queue_iterate(BLOCKED, find_item, (void*)(long)curThread->TID, &blockedThread) == 0){
-	printf("UNBLOCKING THREAD \n");	
 	struct TCB *threadBlocked = (struct TCB*)blockedThread ;
 	threadBlocked->tidWait = -2;
 	queue_delete(BLOCKED, &threadBlocked);
 	queue_enqueue(READY, threadBlocked); 
 	}
-	printf("cur tcb has TID: %d \n", cur_tcb->TID);
+	
 	struct TCB* nextThread;
 	queue_dequeue(READY, &nextThread);
 	cur_tcb = nextThread;
@@ -145,12 +140,12 @@ int uthread_join(uthread_t tid, int *retval)
 	//printf("cur_tcb has tid: %d \n", cur_tcb->TID);
 	//printf("length of ready queue is: %d \n", queue_length(READY));
 	while(queue_length(READY) != 0){
-		printf("in while \n");
 		uthread_yield();
 	}	
 	return 0;
 }
 
+/* test1 */
 int hello(void* arg)
 {
 	printf("Hello world!\n");
