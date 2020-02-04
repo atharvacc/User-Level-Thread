@@ -91,13 +91,24 @@ void test_length() {
     newQueue = queue_create();
     TEST_ASSERT(queue_length(newQueue) == 0);
 
+    /* Testing length of 10 */
     for(int i = 0; i < 10; i++) {
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
-
-    printf("%d\n", queue_length(newQueue));
-
     TEST_ASSERT(queue_length(newQueue) == 10);
+
+    /* Testing length of 5 */
+    int* super = NULL;
+    for(int i = 0; i < 5; i++) {
+        queue_dequeue(newQueue, (void **) &super);
+    } // Enqueue 1-10
+    TEST_ASSERT(queue_length(newQueue) == 5);
+
+    /* Testing length of 0 from dequeueing */
+    for(int i = 0; i < 10; i++) {
+        queue_dequeue(newQueue, (void **) &super);
+    } // Enqueue 1-10
+    TEST_ASSERT(queue_length(newQueue) == 0);
 }
 
 void test_iterate() {
@@ -106,11 +117,8 @@ void test_iterate() {
     for(int i = 0; i < 10; i++) {
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
-    print_queue(newQueue);
-
     queue_iterate(newQueue, add_n, &dataArray[9], NULL);
     print_queue(newQueue);
-
 }
 
 int main(void)
