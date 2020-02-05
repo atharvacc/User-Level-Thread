@@ -30,6 +30,27 @@ queue_t READY ; // Ready to run
 queue_t BLOCKED ; // Waiting for TID
 queue_t ZOMBIE; // Exited and holds retval
 
+static int findtidWait(void *data, void *arg)
+{
+    struct TCB  *a = (struct TCB*)data;
+    int match = (int)(long)arg;
+    if (a->tidWait == match){
+        return 1;
+    }
+
+    return 0;
+}
+
+static int find_tid(void *data, void *arg)
+{
+    struct TCB  *a = (struct TCB*)data;
+    int match = (int)(long)arg;
+    if (a->TID == match){
+        return 1;
+    }
+
+    return 0;
+}
 
 /*Unblock if possible and free if possible, and then resume next insturction*/
 int unblock()
@@ -57,16 +78,7 @@ int unblock()
 }
 
 
-static int find_tid(void *data, void *arg)
-{
-    struct TCB  *a = (struct TCB*)data;
-    int match = (int)(long)arg;
-    if (a->TID == match){
-        return 1;
-    }
 
-    return 0;
-}
 
 int unblock_zombie(uthread_t tid)
 {
@@ -164,16 +176,7 @@ int uthread_create(uthread_func_t func, void *arg)
 	return new_tcb->TID;
 }
 
-static int findtidWait(void *data, void *arg)
-{
-    struct TCB  *a = (struct TCB*)data;
-    int match = (int)(long)arg;
-    if (a->tidWait == match){
-        return 1;
-    }
 
-    return 0;
-}
 
 void uthread_exit(int retval)
 {
