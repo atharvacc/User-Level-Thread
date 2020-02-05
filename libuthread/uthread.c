@@ -84,7 +84,7 @@ int uthread_create(uthread_func_t func, void *arg)
 	return new_tcb->TID;
 }
 
-static int find_item(void *data, void *arg)
+static int findtidWait(void *data, void *arg)
 {
     struct TCB  *a = (struct TCB*)data;
     int match = (int)(long)arg;
@@ -103,14 +103,11 @@ void uthread_exit(int retval)
 	
 	cur_tcb ->retVal = retval; // assign retval to that tcb
 	cur_tcb -> state = 4;
-	queue_enqueue(ZOMBIE, cur_tcb); // add to zombie que
-
+	queue_enqueue(ZOMBIE, cur_tcb); // add to zombie queue
 	struct TCB *curThread1 = cur_tcb;// create a copy of the current running thread
-	
 	//If blocking something then unblock that and add to READY
 
 	unblock();
-	
 		
 	struct TCB* nextThread;
 	queue_dequeue(READY, &nextThread);
@@ -125,20 +122,32 @@ int uthread_join(uthread_t tid, int *retval)
 	if (BLOCKED == NULL){ // Create BLOCKED if not created yet
 		BLOCKED = queue_create();
 	}
-	cur_tcb ->tidWait = tid;
-	cur_tcb -> isBlocked = 1;
 	
-	queue_enqueue(BLOCKED, cur_tcb);
-	//printf("cur_tcb has tid: %d \n", cur_tcb->TID);
-	//printf("length of ready queue is: %d \n", queue_length(READY));
-	while(queue_length(READY) != 0){
+	if(tid == 0 || cur_tcb->TID == tid){ // Cant wait for main, or for currently active process
+		return -1;
+	}
+
+	
+
+	if(unblock_zombie(tid) == 1) // Thread was already done , thus check in ZOMBIE for TID == tid and assing retval to cur_tcb and continue execution
+	{
+		return 0;
+	}
+
+	else if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
+	{
 		uthread_yield();
+	}
+	
+	else{ // Couldn't find
+		return -1;
 	}	
 	return 0;
 }
 
+
 /*Unblock if possible and free if possible, and then resume next insturction*/
-void unblock()
+int unblock()
 {
 	struct TCB *curThread = cur_tcb;// create a copy of the current running thread
 	
@@ -146,7 +155,7 @@ void unblock()
 
 	void *blockedThread;
 	
-	if (queue_iterate(BLOCKED, find_item, (void*)(long)curThread->TID, &blockedThread) == 0){
+	if (queue_iterate(BLOCKED, findtidWait, (void*)(long)curThread->TID, &blockedThread) == 0){
 	struct TCB *threadBlocked = (struct TCB*)blockedThread ;
 	threadBlocked->tidWait = -2;
 	queue_delete(BLOCKED, &threadBlocked);
@@ -155,10 +164,70 @@ void unblock()
 	uthread_ctx_destroy_stack(curThread->stack);
 	free(curThread);
 	queue_enqueue(READY, threadBlocked);
+	return 1;
 	}	
 	}
+	return 0;
 
 }
+
+
+static int find_tid(void *data, void *arg)
+{
+    struct TCB  *a = (struct TCB*)data;
+    int match = (int)(long)arg;
+    if (a->TID == match){
+        return 1;
+    }
+
+    return 0;
+}
+
+int unblock_zombie(uthread_t tid)
+{
+	
+	
+	//If blocking something then unblock that and add to READY
+
+	void *zombieThread;
+	
+	if (queue_iterate(ZOMBIE, find_tid, (void*)(long)tid, &zombieThread) == 0){
+		struct TCB *threadZombie = (struct TCB*)zombieThread ;
+		queue_delete(ZOMBIE, &threadZombie);
+		if(threadZombie->state== 4){
+			cur_tcb->retVal = threadZombie->retVal; 
+			uthread_ctx_destroy_stack(threadZombie->stack);
+			free(threadZombie);
+			return 1;
+		}	
+	}
+	return 0;
+
+}
+
+int in_ready(uthread_t tid)
+{
+	
+	
+	//If blocking something then unblock that and add to READY
+
+	void *READYTHREAD;
+	
+	if (queue_iterate(READY, find_tid, (void*)(long)tid, &READYTHREAD) == 0){
+		struct TCB *threadREADY = (struct TCB*)READYTHREAD ;
+		if(threadREADY->state== 1){
+			cur_tcb ->tidWait = tid;
+			cur_tcb -> isBlocked = 1;
+			queue_enqueue(BLOCKED, cur_tcb);
+			return 1;
+		}	
+	}
+	return 0;
+
+}
+
+
+
 /* test1 */
 /*
 int hello(void* arg)
