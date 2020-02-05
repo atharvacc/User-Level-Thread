@@ -66,6 +66,9 @@ int unblock()
 	threadBlocked->tidWait = -2;
 	queue_delete(BLOCKED, &threadBlocked);
 	if(threadBlocked->isBlocked == 1){
+		if(threadBlocked->retValSave!=NULL){ // if retvalsave is not null, then some retVal was used
+			*(threadBlocked->retValSave) = curThread->retVal;
+		}
 	threadBlocked->retVal = curThread->retVal; 
 	uthread_ctx_destroy_stack(curThread->stack);
 	free(curThread);
@@ -104,10 +107,10 @@ int in_ready(uthread_t tid)
 	void *READYTHREAD;
 	if (queue_iterate(READY, find_tid, (void*)(long)tid, &READYTHREAD) == 0){
 		struct TCB *threadREADY = (struct TCB*)READYTHREAD ;
-		
 		if(threadREADY->state== 0){
 			cur_tcb ->tidWait = tid;
 			cur_tcb -> isBlocked = 1;
+			cur_tcb -> state = 2;
 			queue_enqueue(BLOCKED, cur_tcb);
 			return 1;
 		}	
@@ -115,6 +118,23 @@ int in_ready(uthread_t tid)
 	return 0;
 }
 
+/*Used in join to check if the TID is in BLOCKED QUEUE. If present, then we block the currently running process
+ and yield to the next thread */
+int in_blocked(uthread_t tid)
+{
+	void *BLOCKTHREAD;
+	if (queue_iterate(BLOCKED, find_tid, (void*)(long)tid, &BLOCKTHREAD) == 0){
+		struct TCB *threadBLOCK = (struct TCB*)BLOCKTHREAD ;
+		if(threadBLOCK->state== 2){
+			cur_tcb ->tidWait = tid;
+			cur_tcb -> isBlocked = 1;
+			cur_tcb ->state = 2;
+			queue_enqueue(BLOCKED, cur_tcb);
+			return 1;
+		}	
+	}
+	return 0;
+}
 
 void uthread_yield(void)
 {
@@ -152,6 +172,7 @@ int uthread_create(uthread_func_t func, void *arg)
 		cur_tcb->TID = 0;
 		cur_tcb->tidWait = -2;
 		cur_tcb->isBlocked = 0;
+		cur_tcb->retValSave = NULL;
 		cur_TID++;
 		preempt_start();
 	}
@@ -161,6 +182,7 @@ int uthread_create(uthread_func_t func, void *arg)
 	new_tcb->stack = uthread_ctx_alloc_stack();
 	new_tcb->tidWait = -2;
 	new_tcb->isBlocked=0;
+	new_tcb->retValSave = NULL;
 	ucontext_t *contextPtr = &(new_tcb->context);
 	int retval = uthread_ctx_init(contextPtr, new_tcb->stack, func, arg);
 	if (retval == -1){
@@ -208,11 +230,18 @@ int uthread_join(uthread_t tid, int *retval)
 	// Join handling 
 	if(unblock_zombie(tid) == 1) // Thread was already done , thus check in ZOMBIE for TID == tid and assing retval to cur_tcb and continue execution
 	{
+		if(retval != NULL){
+			*retval = cur_tcb->retVal;
+		}
+		
 		return 0;
 	}
 	
-	else if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
+	else if (in_ready(tid) == 1 || in_blocked(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
 	{
+		if (retval != NULL){ // If retval is not null then we want to save  the returned thread a certain value
+			cur_tcb->retValSave = retval;
+		}
 		uthread_yield();
 	}
 
