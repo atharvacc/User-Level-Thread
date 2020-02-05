@@ -21,13 +21,13 @@ sigset_t set ; // Set for blocking signals
 
 //setup singal handler
 void signal_handler(){
-	printf("inside handler \n");
+	//printf("inside handler \n");
 	uthread_yield();
 }
 
 void preempt_disable(void)
 {
-	printf("Disabling preempt \n");
+	//printf("Disabling preempt \n");
 	sigemptyset(&set); // Set set to empty set 
 	sigaddset(&set, SIGVTALRM); // add SIGVT TO ALARM
 	sigprocmask(SIG_BLOCK, &set, NULL);
@@ -36,13 +36,13 @@ void preempt_disable(void)
 
 void preempt_enable(void)
 {
-	printf("Enabling preempt \n");
+	//printf("Enabling preempt \n");
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 }
 
 void preempt_start(void)
 {
-	printf("Starting Preempt \n");
+	//printf("Starting Preempt \n");
 	memset (&sa, 0, sizeof (sa));
  	sa.sa_handler = &signal_handler;
  	sigaction (SIGVTALRM, &sa, NULL);
