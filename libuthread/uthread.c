@@ -11,6 +11,7 @@
 #include "queue.h"
 #include "uthread.h"
 
+// Struct for TCB for each thread //
 struct TCB {
     uthread_t TID;
     ucontext_t context;
@@ -30,6 +31,8 @@ queue_t READY ; // Ready to run
 queue_t BLOCKED ; // Waiting for TID
 queue_t ZOMBIE; // Exited and holds retval
 
+
+// Find if the arg matches TID wait. The TID wait for a thread is initialized when a thread is blocked //
 static int findtidWait(void *data, void *arg)
 {
     struct TCB  *a = (struct TCB*)data;
@@ -37,10 +40,10 @@ static int findtidWait(void *data, void *arg)
     if (a->tidWait == match){
         return 1;
     }
-
     return 0;
 }
 
+// Find if the arg matches the TID. This is used to find if the TID is in READY when joining, and tells us that something needs to be blocked //
 static int find_tid(void *data, void *arg)
 {
     struct TCB  *a = (struct TCB*)data;
@@ -48,19 +51,15 @@ static int find_tid(void *data, void *arg)
     if (a->TID == match){
         return 1;
     }
-
     return 0;
 }
 
-/*Unblock if possible and free if possible, and then resume next insturction*/
+/* Unblocks if cur tcb's TID matches a TID wait in the BLOCK queue -> Assigns the retval to the collecting thread 
+-> free up the exiting thread after destorying stack and enqueing the blocked process in the READY queue  */
 int unblock()
 {
 	struct TCB *curThread = cur_tcb;// create a copy of the current running thread
-	
-	//If blocking something then unblock that and add to READY
-
 	void *blockedThread;
-	
 	if (queue_iterate(BLOCKED, findtidWait, (void*)(long)curThread->TID, &blockedThread) == 0){
 	struct TCB *threadBlocked = (struct TCB*)blockedThread ;
 	threadBlocked->tidWait = -2;
@@ -74,20 +73,15 @@ int unblock()
 	}	
 	}
 	return 0;
-
 }
 
 
 
-
+/* Used in join. This checks if the tid is present in the zombie thread. Thus we can extract the retval to the 
+present thread, destroy the exited thread and then continue the current process */
 int unblock_zombie(uthread_t tid)
 {
-	
-	
-	//If blocking something then unblock that and add to READY
-
 	void *zombieThread;
-	
 	if (queue_iterate(ZOMBIE, find_tid, (void*)(long)tid, &zombieThread) == 0){
 		struct TCB *threadZombie = (struct TCB*)zombieThread ;
 		queue_delete(ZOMBIE, &threadZombie);
@@ -102,14 +96,11 @@ int unblock_zombie(uthread_t tid)
 
 }
 
+/*Used in join to check if the TID is in READY QUEUE. If present, then we block the currently running process
+ and yield to the next thread */
 int in_ready(uthread_t tid)
 {
-	
-	
-	//If blocking something then unblock that and add to READY
-
 	void *READYTHREAD;
-	
 	if (queue_iterate(READY, find_tid, (void*)(long)tid, &READYTHREAD) == 0){
 		struct TCB *threadREADY = (struct TCB*)READYTHREAD ;
 		
@@ -121,21 +112,20 @@ int in_ready(uthread_t tid)
 		}	
 	}
 	return 0;
-
 }
+
+
 void uthread_yield(void)
 {
 	if (READY == NULL){ // If nothing is in queue or it was never initialized
 		return;
 	}
-	
 	cur_tcb->state = 0; // Set currently running state to READY
 	struct TCB* currThread = cur_tcb; // Create a COPY of the currently running thread
 	struct TCB* nextThread;
 	if(currThread->isBlocked != 1){
 		queue_enqueue(READY, (void**)currThread); // Add to ready queue
 	}
-
 	queue_dequeue(READY, (void**)&nextThread); // Get next thread in queue
 	cur_tcb = nextThread; //Get the next thread
 	cur_tcb-> state = 1; // Set state to running
@@ -190,9 +180,7 @@ void uthread_exit(int retval)
 	queue_enqueue(ZOMBIE, cur_tcb); // add to zombie queue
 	struct TCB *curThread1 = cur_tcb;// create a copy of the current running thread
 	//If blocking something then unblock that and add to READY
-
 	unblock();
-		
 	struct TCB* nextThread;
 	queue_dequeue(READY, &nextThread);
 	cur_tcb = nextThread;
@@ -211,26 +199,21 @@ int uthread_join(uthread_t tid, int *retval)
 		return -1;
 	}
 
-	
-
+	// Join handling 
 	if(unblock_zombie(tid) == 1) // Thread was already done , thus check in ZOMBIE for TID == tid and assing retval to cur_tcb and continue execution
 	{
 		return 0;
 	}
 	
-	
-	
-	if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
+	else if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
 	{
-	//	printf("cur_tcb has tid : %d \n" , cur_tcb->TID);
 		uthread_yield();
 	}
-	
-	//printf("here \n");
-	/*
-	else{ // Couldn't find
+
+	else{ // Couldn't find in BLOCKED or READY and isn't presently Runnning 
 		return -1;
-	}*/	
+	}
+
 	return 0;
 }
 
