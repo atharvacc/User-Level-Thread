@@ -112,7 +112,8 @@ int in_ready(uthread_t tid)
 	
 	if (queue_iterate(READY, find_tid, (void*)(long)tid, &READYTHREAD) == 0){
 		struct TCB *threadREADY = (struct TCB*)READYTHREAD ;
-		if(threadREADY->state== 1){
+		
+		if(threadREADY->state== 0){
 			cur_tcb ->tidWait = tid;
 			cur_tcb -> isBlocked = 1;
 			queue_enqueue(BLOCKED, cur_tcb);
@@ -216,15 +217,20 @@ int uthread_join(uthread_t tid, int *retval)
 	{
 		return 0;
 	}
-
-	else if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
+	
+	
+	
+	if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
 	{
+	//	printf("cur_tcb has tid : %d \n" , cur_tcb->TID);
 		uthread_yield();
 	}
 	
+	//printf("here \n");
+	/*
 	else{ // Couldn't find
 		return -1;
-	}	
+	}*/	
 	return 0;
 }
 
