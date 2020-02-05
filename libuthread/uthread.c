@@ -19,6 +19,7 @@ struct TCB {
 	int state; // 0 for READY, 1 RUNNING, 2 for BLOCKED, 3 for ZOMBIE
 	int retVal; // Store return value
 	int isBlocked; // Check if is blocked(NOTUSED)
+	int *retValSave;
 	uthread_t tidWait;
 };
 
@@ -120,6 +121,7 @@ void uthread_yield(void)
 	if (READY == NULL){ // If nothing is in queue or it was never initialized
 		return;
 	}
+	preempt_disable(); // Make sure YIELDing isn't affected by preempt
 	cur_tcb->state = 0; // Set currently running state to READY
 	struct TCB* currThread = cur_tcb; // Create a COPY of the currently running thread
 	struct TCB* nextThread;
@@ -131,6 +133,7 @@ void uthread_yield(void)
 	cur_tcb-> state = 1; // Set state to running
 	ucontext_t* curContext = &(currThread->context); // Get current Context
 	ucontext_t* nextContext = &(cur_tcb->context); // Get next context
+	preempt_enable();
 	uthread_ctx_switch(curContext, nextContext) ; //make the next thread start
 	
 }
@@ -150,7 +153,9 @@ int uthread_create(uthread_func_t func, void *arg)
 		cur_tcb->tidWait = -2;
 		cur_tcb->isBlocked = 0;
 		cur_TID++;
+		preempt_start();
 	}
+	preempt_disable();
 	new_tcb = malloc(sizeof(struct TCB));
 	new_tcb->TID = cur_TID;
 	new_tcb->stack = uthread_ctx_alloc_stack();
@@ -164,6 +169,7 @@ int uthread_create(uthread_func_t func, void *arg)
 	new_tcb->state = 0;//READY
 	queue_enqueue(READY, new_tcb);
 	cur_TID++;
+	preempt_enable();
 	return new_tcb->TID;
 }
 
@@ -242,7 +248,7 @@ int main(void)
 */
 
 /*test2 */
-
+/*
 int thread3(void* arg)
 {
 	uthread_yield();
@@ -273,4 +279,4 @@ int main(void)
 	return 0;
 }
 
-
+*/
