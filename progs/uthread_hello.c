@@ -12,15 +12,16 @@
 int hello(void* arg)
 {
 	printf("Hello world!\n");
-	return 0;
+	return 2;
 }
 
 int main(void)
 {
 	uthread_t tid;
-
+	int a = 10;
+	int *retval = &a;
 	tid = uthread_create(hello, NULL);
-	uthread_join(tid, NULL);
-
+	uthread_join(tid, retval);
+	printf("retval is : %d\n", *retval); // Check if hello world returns the correct value
 	return 0;
 }

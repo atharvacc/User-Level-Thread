@@ -227,7 +227,7 @@ int uthread_join(uthread_t tid, int *retval)
 	if(tid == 0 || cur_tcb->TID == tid){ // Cant wait for main, or for currently active process
 		return -1;
 	}
-
+	
 	// Join handling 
 	if(unblock_zombie(tid) == 1) // Thread was already done , thus check in ZOMBIE for TID == tid and assing retval to cur_tcb and continue execution
 	{
@@ -237,7 +237,7 @@ int uthread_join(uthread_t tid, int *retval)
 		
 		return 0;
 	}
-	
+
 	else if ( in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
 	{
 		if (retval != NULL){ // If retval is not null then we want to save  the returned thread a certain value
@@ -253,7 +253,7 @@ int uthread_join(uthread_t tid, int *retval)
 		return 0;
 
 	}
-
+	
 	else{ // Couldn't find in BLOCKED or READY and isn't presently Runnning 
 		return -1;
 	}
