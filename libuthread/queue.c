@@ -177,8 +177,9 @@ int queue_length(queue_t queue)
 	if(queue->head == NULL)
 	    return 0;
 
-    for(struct Node *current = queue->head; current != queue->back; current = current->next)
+    for(struct Node *current = queue->head; current != queue->back; current = current->next) {
         count += 1;
+    }
 
 	return count + 1; // To take into account the last element
 } // Has error. for empty queue doesn't wokr as expected

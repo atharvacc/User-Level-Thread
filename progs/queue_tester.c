@@ -114,6 +114,7 @@ void test_iterate(){
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
 
+    fprintf(stderr, "*** TEST queue_iterate ***\n");
     queue_iterate(newQueue, add_n, &dataArray[9], NULL);
     queue_dequeue(newQueue, (void**) &ptr);
     TEST_ASSERT(*ptr == 11); // 1 + 10
