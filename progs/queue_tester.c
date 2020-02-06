@@ -105,21 +105,33 @@ int add_n(void *data, void *arg) {
     return 0;
 }
 
-void test_iterate(){
-    int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
+int add_n_1(void *data, void *arg) {
+    *(int*)data += *(int*)arg;
+
+    return 1;
+}
+
+void test_iterate() {
+    int dataArray[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     queue_t newQueue = queue_create();
     int *ptr;
 
-    for(int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
 
     fprintf(stderr, "*** TEST queue_iterate ***\n");
     queue_iterate(newQueue, add_n, &dataArray[9], NULL);
-    queue_dequeue(newQueue, (void**) &ptr);
-    TEST_ASSERT(*ptr == 11); // 1 + 10
-    queue_dequeue(newQueue, (void**) &ptr);
-    TEST_ASSERT(*ptr == 12); // 2 + 10
+    queue_dequeue(newQueue, (void **) &ptr);
+    TEST_ASSERT(*ptr == 11); // 1 + 10 {12 13 14 15 16 17 18 19 20}
+    queue_dequeue(newQueue, (void **) &ptr);
+    TEST_ASSERT(*ptr == 12); // 2 + 10 {13 14 15 16 17 18 19 20}
+
+    queue_iterate(newQueue, add_n_1, &dataArray[9], NULL);
+    queue_dequeue(newQueue, (void **) &ptr);
+    TEST_ASSERT(*ptr == 33);
+    queue_dequeue(newQueue, (void **) &ptr);
+    TEST_ASSERT(*ptr == 14); // 13 + 10 {14 15 16 17 18 19 20}
 }
 
 int main(void)
