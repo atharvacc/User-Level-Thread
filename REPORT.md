@@ -9,7 +9,7 @@ For this function, we use malloc to allocate space for the queue, and add a chec
 was successfully executed or not
 
 #### queue_destroy()
-For this function, we use 'free' to deallocate space of the queue. Add check for when queue is NULl
+For this function, we use 'free' to deallocate space of the queue. Add check for when queue is NULL
 or queue is empty
 
 #### queue_enqueue()
@@ -34,11 +34,24 @@ What to be noted is that those functions should not be able to manipulate the qu
 for the function return value; if it is 1, we would stop prematurely, and not updating the elements after that.
 In addition, if the pointer to data list is not NULL, we would save the node's data to that data list.
 
-#### queue_length()_: 
+#### queue_length()
 For this function, we basically loop over the loop, and increment the count as we go.
 
 #### Testing
-- To add Testing here
+To test the functions of the Queue, we wrote a test for each function to check whether they are working
+properly or not, including the edge cases.
+
+**test_create():**
+
+**test_queue_simple()**
+
+**test_destroy()**
+
+**test_delete()**
+
+**test_length()**
+
+**test_iterate()**
 
 ### UThread Implementation
 
