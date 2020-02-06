@@ -183,14 +183,3 @@ int queue_length(queue_t queue)
 	return count + 1; // To take into account the last element
 } // Has error. for empty queue doesn't wokr as expected
 
-int print_queue(queue_t queue) {
-    printf("Printing Queue:\n");
-    for(struct Node *current = queue->head; current != queue->back; current = current->next) {
-        printf("%d ", *(int*)current->data);
-    }
-    printf("%d", *(int*)queue->back->data);
-    printf("\n--------------------------\n\n");
-
-    return 0;
-}
-

@@ -113,9 +113,4 @@ int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data);
  */
 int queue_length(queue_t queue);
 
-/* Function to add <n> to each element of the queue */
-int add_n(void *data, void *arg);
-
-int print_queue(queue_t queue); // For Debug
-
 #endif /* _QUEUE_H */
