@@ -9,22 +9,8 @@
 
 #include <uthread.h>
 
-int thread3(void* arg)
-{
-    printf("Hello\n");
-    time_t start, end;
-    time(&start);
-    do time(&end); while(difftime(end, start) <= 2.5);
-
-    printf("thread%d\n", uthread_self());
-
-    return 0;
-}
-
 int thread2(void* arg)
 {
-    uthread_create(thread3, NULL);
-    uthread_yield();
     printf("thread%d\n", uthread_self());
     return 0;
 }
@@ -32,9 +18,13 @@ int thread2(void* arg)
 int thread1(void* arg)
 {
     uthread_create(thread2, NULL);
-    uthread_yield();
+
+    time_t start, end;
+    time(&start);
+    do time(&end); while(difftime(end, start) < 2);
+
     printf("thread%d\n", uthread_self());
-    uthread_yield();
+
     return 0;
 }
 
