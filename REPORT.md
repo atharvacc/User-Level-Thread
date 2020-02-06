@@ -43,6 +43,12 @@ ZOMBIE queue for the TID. If it is present, then we delete it from the ZOMBIE af
 we assign it to the retval provided. We then check for the TID in the READY and blocked queue. If present in ready we update the BLOCKED QUEUE with the cur_thread. Assign the 
 isBlocked to 1, and then yield. Which will schedule the next available thread, and not enqueue the blocked thread to the ready queue. If it is present in the BLOCKED queue, then we block the currently running thread, by enqueing it into the BLOCKED QUEUE and set the isBlocked value to 1. If none of these if/else statements has the value, then the TID is not present anywhere and we return a -1.
 
+#### Testing 
+- We ran uthread_hello to ensure our thread is performing as expected.
+- We also ran uthread_yield to ensure our thread is performing as expected.
+- We made a modification to uthread_hello to check if we assign an int pointer to store the return value, it is actually assigned to it after joining.
+- We added a yield statement without creating a thread to check if we return without our code crashing.
+
 ### Preempt Implementation and usage within uthread
 - We have a signal handler that just calls uthread_yield after the timer goes off.
 - For disabling, we define an empty sigset_t  and the the SIGVTALRM signal to it. We use sigprocmask to disable and enable the preempts.
@@ -53,4 +59,5 @@ we get an interrupt and start the process all over again, causing the READY queu
 - uthread_create: When we initialize the main thread, thats when we start the preemption. However, when creating the new thread we do disable it since we want the cur_tid to be updated atomically, and the
 TID of the current thread as well.
 - uthread_exit: We disable the preempt before enqueing the current thread in the ZOMBIE list, and proceed to do unblocking. This is important, since unblocking modifies whats in the READY queue. 
-- uthread_join: We have different if statements, that check values within the data structure. We do not want to be yielding to a different thread and updating the queues while in join. Thus we disable it before checking these if statements and enable it after.
+- uthread_join: We have different if statements, that check values within the data structure. We do not want to be yielding to a different thread and updating the queues while in join. Thus we disable it before checking these if statements and enable it after
+
