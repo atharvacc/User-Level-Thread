@@ -11,13 +11,10 @@
 
 int thread3(void* arg)
 {
-    /* Clock to check time */
-    clock_t begin = clock();
-    double time_spent = (double) (clock() - begin) / CLOCKS_PER_SEC;
-    /* In the span of two seconds, if Alarm_Fired = 1, we're good */
-    while(time_spent <= 2) {
-        time_spent = (double) (clock() - begin) / CLOCKS_PER_SEC;
-    } // Loop: For two seconds
+    printf("Hello\n");
+    time_t start, end;
+    time(&start);
+    do time(&end); while(difftime(end, start) <= 2.5);
 
     printf("thread%d\n", uthread_self());
 
@@ -27,7 +24,7 @@ int thread3(void* arg)
 int thread2(void* arg)
 {
     uthread_create(thread3, NULL);
-//    uthread_yield();
+    uthread_yield();
     printf("thread%d\n", uthread_self());
     return 0;
 }
@@ -35,9 +32,9 @@ int thread2(void* arg)
 int thread1(void* arg)
 {
     uthread_create(thread2, NULL);
-//    uthread_yield();
+    uthread_yield();
     printf("thread%d\n", uthread_self());
-//    uthread_yield();
+    uthread_yield();
     return 0;
 }
 
