@@ -58,7 +58,7 @@ static int find_tid(void *data, void *arg)
 /* Unblocks if cur tcb's TID matches a TID wait in the BLOCK queue -> Assigns the retval to the collecting thread 
 -> free up the exiting thread after destorying stack and enqueing the blocked process in the READY queue  */
 int unblock()
-{
+{	
 	struct TCB *curThread = cur_tcb;// create a copy of the current running thread
 	void *blockedThread;
 	if (queue_iterate(BLOCKED, findtidWait, (void*)(long)curThread->TID, &blockedThread) == 0){
@@ -86,6 +86,7 @@ int unblock()
 present thread, destroy the exited thread and then continue the current process */
 int unblock_zombie(uthread_t tid)
 {
+
 	void *zombieThread;
 	if (queue_iterate(ZOMBIE, find_tid, (void*)(long)tid, &zombieThread) == 0){
 		struct TCB *threadZombie = (struct TCB*)zombieThread ;
@@ -95,7 +96,8 @@ int unblock_zombie(uthread_t tid)
 			uthread_ctx_destroy_stack(threadZombie->stack);
 			free(threadZombie);
 			return 1;
-		}	
+		}
+	
 	}
 	return 0;
 
@@ -200,6 +202,7 @@ int uthread_create(uthread_func_t func, void *arg)
 
 void uthread_exit(int retval)
 {
+	preempt_disable();
 	if (ZOMBIE == NULL){ // create zombie if we're in the first state
 		ZOMBIE = queue_create();
 	}
@@ -213,6 +216,7 @@ void uthread_exit(int retval)
 	struct TCB* nextThread;
 	queue_dequeue(READY, &nextThread);
 	cur_tcb = nextThread;
+	preempt_enable();
 	// start next thread from READY
 	uthread_ctx_switch(&(curThread1->context), &(cur_tcb->context));
 	
@@ -227,14 +231,14 @@ int uthread_join(uthread_t tid, int *retval)
 	if(tid == 0 || cur_tcb->TID == tid){ // Cant wait for main, or for currently active process
 		return -1;
 	}
-	
+	preempt_disable();
 	// Join handling 
 	if(unblock_zombie(tid) == 1) // Thread was already done , thus check in ZOMBIE for TID == tid and assing retval to cur_tcb and continue execution
 	{
 		if(retval != NULL){
 			*retval = cur_tcb->retVal;
 		}
-		
+		preempt_enable();
 		return 0;
 	}
 
@@ -243,6 +247,7 @@ int uthread_join(uthread_t tid, int *retval)
 		if (retval != NULL){ // If retval is not null then we want to save  the returned thread a certain value
 			cur_tcb->retValSave = retval;
 		}
+		preempt_enable();
 		uthread_yield();
 	}
 
@@ -250,14 +255,16 @@ int uthread_join(uthread_t tid, int *retval)
 		if(retval != NULL){
 			*retval = cur_tcb->retVal;
 		}
+		preempt_enable();
 		return 0;
 
 	}
 	
 	else{ // Couldn't find in BLOCKED or READY and isn't presently Runnning 
+		preempt_enable();
 		return -1;
 	}
-
+	preempt_enable();
 	return 0;
 }
 
