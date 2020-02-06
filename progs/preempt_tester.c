@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -27,7 +27,7 @@ int thread3(void* arg)
 int thread2(void* arg)
 {
     uthread_create(thread3, NULL);
-    uthread_yield();
+//    uthread_yield();
     printf("thread%d\n", uthread_self());
     return 0;
 }
@@ -35,9 +35,9 @@ int thread2(void* arg)
 int thread1(void* arg)
 {
     uthread_create(thread2, NULL);
-    uthread_yield();
+//    uthread_yield();
     printf("thread%d\n", uthread_self());
-    uthread_yield();
+//    uthread_yield();
     return 0;
 }
 
