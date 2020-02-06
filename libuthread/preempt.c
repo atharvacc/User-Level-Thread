@@ -37,6 +37,8 @@ void preempt_disable(void)
 void preempt_enable(void)
 {
 	//printf("Enabling preempt \n");
+	sigemptyset(&set);
+	sigaddset(&set, SIGVTALRM);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
 }
 
