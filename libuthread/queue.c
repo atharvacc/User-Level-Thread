@@ -52,11 +52,14 @@ int queue_enqueue(queue_t queue, void *data)
 	    queue->head = (struct Node*)malloc(sizeof(struct Node));
 	    queue->head->data = data;
 	    queue->back = queue->head;
+		queue->head->next = NULL;
 	} // If: Empty Queue
 	else {
 	    queue->back->next = (struct Node*)malloc(sizeof(struct Node));
 	    queue->back->next->data = data;
 	    queue->back = queue->back->next;
+		queue->back->next = NULL;
+		
 	} // Else: Existing Queue
 
 	if(queue->head == NULL) {
@@ -123,25 +126,28 @@ int queue_delete(queue_t queue, void *data)
 
 int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 {
-    if(queue == NULL || func == NULL)
-        return -1;
+	if (queue == NULL || func ==NULL){
+		return -1;
+	}
+	for(struct Node *current = queue->head; current != queue->back; current = current->next) {
 
-	struct Node *current = NULL;
-	for(current = queue->head; current != queue->back; current = current->next) {
-	    if(func(current->data, arg) == 1) {
-	        if(current->data != NULL)
-	            data = current->data;
-	        break;
-	    } // If: @func returns 1. Stop prematurely
-	} // Loop: through Queue
+		if(func(current->data, arg)){
+			if(data!=NULL){
+				*data = current->data;
+			}
+			return 0;
+		}
+    } //end for
 
-	// Account for last element
-	struct Node *lastElement = queue->back;
-    if(func(lastElement->data, arg) == 1)
-        if(lastElement->data != NULL)
-            data = lastElement->data;
+	//Do the same for the last element
+	if(func(queue->back->data, arg)){
+			if(data!=NULL){
+				*data = queue->back->data;
+			}
+			return 0;
+		}
+    return 0;
 
-	return 0;
 }
 
 int queue_length(queue_t queue)
@@ -157,7 +163,7 @@ int queue_length(queue_t queue)
         count += 1;
 
 	return count + 1; // To take into account the last element
-}
+} // Has error. for empty queue doesn't wokr as expected
 
 int print_queue(queue_t queue) {
     printf("Printing Queue:\n");
@@ -169,9 +175,13 @@ int print_queue(queue_t queue) {
 
     return 0;
 }
-
-int add_n(void *data, void *arg) {
-    *(int*)data += *(int*)arg;
+static int inc_item(void *data, void *arg)
+{
+    int *a = (int*)data;
+    int inc = (int)(long)arg;
+    *a += inc;
 
     return 0;
-} // Sample Function for 'queue_iterate'
+}
+
+
