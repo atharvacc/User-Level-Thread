@@ -214,7 +214,7 @@ void uthread_exit(int retval)
 	//If blocking something then unblock that and add to READY
 	unblock();
 	struct TCB* nextThread;
-	queue_dequeue(READY, &nextThread);
+	queue_dequeue(READY, (void**) &nextThread);
 	cur_tcb = nextThread;
 	preempt_enable();
 	// start next thread from READY
