@@ -15,6 +15,16 @@ do {						\
 	}					\
 } while(0)
 
+/*
+static int inc_item(void *data, void *arg)
+{
+    int *a = (int*)data;
+    int inc = (int)(long)arg;
+    *a += inc;
+
+    return 0;
+}*/
+
 /* Create */
 void test_create(void)
 {
@@ -100,6 +110,7 @@ void test_length() {
     TEST_ASSERT(queue_length(newQueue) == 10);
 }
 
+/*
 void test_iterate() {
     int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
     queue_t newQueue = queue_create();
@@ -112,7 +123,7 @@ void test_iterate() {
     print_queue(newQueue);
 
 }
-
+*/ // Need add_n
 int main(void)
 {
 	test_create();
@@ -120,7 +131,7 @@ int main(void)
 	test_destroy();
     test_delete();
     test_length();
-    test_iterate();
+    //test_iterate();
 
 	return 0;
 }
