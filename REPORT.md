@@ -48,3 +48,9 @@ isBlocked to 1, and then yield. Which will schedule the next available thread, a
 - For disabling, we define an empty sigset_t  and the the SIGVTALRM signal to it. We use sigprocmask to disable and enable the preempts.
 
 ##### Usage within uthread.c
+- uthread_yield: We disable the preempt when do the swap between the currently executing thread, and the next one. If we don't then its possible that after enqueing the READY queue, 
+we get an interrupt and start the process all over again, causing the READY queue to be updated twice.
+- uthread_create: When we initialize the main thread, thats when we start the preemption. However, when creating the new thread we do disable it since we want the cur_tid to be updated atomically, and the
+TID of the current thread as well.
+- uthread_exit: We disable the preempt before enqueing the current thread in the ZOMBIE list, and proceed to do unblocking. This is important, since unblocking modifies whats in the READY queue. 
+- uthread_join: We have different if statements, that check values within the data structure. We do not want to be yielding to a different thread and updating the queues while in join. Thus we disable it before checking these if statements and enable it after.
