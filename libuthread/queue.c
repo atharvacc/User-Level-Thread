@@ -123,29 +123,7 @@ int queue_delete(queue_t queue, void *data)
 
 	return 0;
 } // queue_delete -- Tested
-/*
-int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
-{
-    if(queue == NULL || func == NULL)
-        return -1;
 
-	struct Node *current = NULL;
-	for(current = queue->head; current != queue->back; current = current->next) {
-	    if(func(current->data, arg) == 1) {
-	        if(current->data != NULL)
-	            data = current->data;
-	        break;
-	    } // If: @func returns 1. Stop prematurely
-	} // Loop: through Queue
-
-	// Account for last element
-	struct Node *lastElement = queue->back;
-    if(func(lastElement->data, arg) == 1)
-        if(lastElement->data != NULL)
-            data = lastElement->data;
-
-	return 0;
-}*/
 int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 {
 	if (queue == NULL || func ==NULL){
@@ -169,6 +147,7 @@ int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 			return 0;
 		}
     return 0;
+
 }
 
 int queue_length(queue_t queue)
@@ -200,29 +179,9 @@ static int inc_item(void *data, void *arg)
 {
     int *a = (int*)data;
     int inc = (int)(long)arg;
-
     *a += inc;
 
     return 0;
 }
 
-/*
-int main(){
-	queue_t newQueue = queue_create();
-	
-	int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
-    
 
-    for(int i = 0; i < 10; i++) {
-        queue_enqueue(newQueue, &dataArray[i]);
-    }
-	
-	for(int i = 0; i < 7; i++) {
-		int* out;
-        queue_dequeue(newQueue, (void**)&out);
-    }
-	
-	int d = queue_length(newQueue);
-	printf("boo lis %d\n",d);
-	return 0;
-}*/

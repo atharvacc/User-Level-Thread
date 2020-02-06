@@ -74,14 +74,14 @@ void test_delete(void) {
 
     fprintf(stderr, "*** TEST queue_delete ***\n");
 
-//    queue_delete(newQueue, &dataArray[4]); // Delete '1'
-//    TEST_ASSERT(queue_delete(newQueue, &dataArray[0]) != 0); // '1' should not be found
-//
-//    queue_delete(newQueue, &dataArray[4]); // Delete '5'
-//    TEST_ASSERT(queue_delete(newQueue, &dataArray[4]) != 0); // '5' should not be found
-//
-//    queue_delete(newQueue, &dataArray[9]); // Delete '10'
-//    TEST_ASSERT(queue_delete(newQueue, &dataArray[9]) != 0); // '10' should not be found
+    queue_delete(newQueue, &dataArray[4]); // Delete '1'
+    TEST_ASSERT(queue_delete(newQueue, &dataArray[0]) != 0); // '1' should not be found
+
+    queue_delete(newQueue, &dataArray[4]); // Delete '5'
+    TEST_ASSERT(queue_delete(newQueue, &dataArray[4]) != 0); // '5' should not be found
+
+    queue_delete(newQueue, &dataArray[9]); // Delete '10'
+    TEST_ASSERT(queue_delete(newQueue, &dataArray[9]) != 0); // '10' should not be found
 }
 
 void test_length() {
@@ -100,13 +100,27 @@ void test_length() {
     TEST_ASSERT(queue_length(newQueue) == 10);
 }
 
+void test_iterate() {
+    int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
+    queue_t newQueue = queue_create();
+    for(int i = 0; i < 10; i++) {
+        queue_enqueue(newQueue, &dataArray[i]);
+    } // Enqueue 1-10
+    print_queue(newQueue);
+
+    queue_iterate(newQueue, add_n, &dataArray[9], NULL);
+    print_queue(newQueue);
+
+}
+
 int main(void)
 {
-//	test_create();
-//	test_queue_simple();
-//	test_destroy();
+	test_create();
+	test_queue_simple();
+	test_destroy();
     test_delete();
     test_length();
+    test_iterate();
 
 	return 0;
 }
