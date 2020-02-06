@@ -66,7 +66,7 @@ int unblock()
 	threadBlocked->tidWait = -2;
 	queue_delete(BLOCKED, &threadBlocked);
 	if(threadBlocked->isBlocked == 1){
-		queue_delete(ZOMBIE, curThread); // delete it since it alreadty unblocked the process it was waiting for.
+		queue_delete(ZOMBIE, &curThread); // delete it since it alreadty unblocked the process it was waiting for.
 		if(threadBlocked->retValSave!=NULL){ // if retvalsave is not null, then some retVal was used
 			*(threadBlocked->retValSave) = curThread->retVal;
 		}
@@ -238,7 +238,7 @@ int uthread_join(uthread_t tid, int *retval)
 		return 0;
 	}
 	
-	else if (in_blocked(tid) == 1 || in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
+	else if ( in_ready(tid) == 1 || in_blocked(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
 	{
 		if (retval != NULL){ // If retval is not null then we want to save  the returned thread a certain value
 			cur_tcb->retValSave = retval;
