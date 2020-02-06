@@ -15,16 +15,6 @@ do {						\
 	}					\
 } while(0)
 
-/*
-static int inc_item(void *data, void *arg)
-{
-    int *a = (int*)data;
-    int inc = (int)(long)arg;
-    *a += inc;
-
-    return 0;
-}*/
-
 /* Create */
 void test_create(void)
 {
@@ -73,57 +63,64 @@ void test_delete(void) {
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
 
-    print_queue(newQueue);
-
-    queue_delete(newQueue, &dataArray[0]); // Delete '1'
-    print_queue(newQueue);
-    queue_delete(newQueue, &dataArray[4]); // Delete '5'
-    print_queue(newQueue);
-    queue_delete(newQueue, &dataArray[9]); // Delete '10'
-    print_queue(newQueue);
-
     fprintf(stderr, "*** TEST queue_delete ***\n");
 
-    queue_delete(newQueue, &dataArray[4]); // Delete '1'
+    /* Case: Deleting the first element */
+    queue_delete(newQueue, &dataArray[0]); // Delete '1'
     TEST_ASSERT(queue_delete(newQueue, &dataArray[0]) != 0); // '1' should not be found
-
+    /* Case: Deleting the middle element */
     queue_delete(newQueue, &dataArray[4]); // Delete '5'
     TEST_ASSERT(queue_delete(newQueue, &dataArray[4]) != 0); // '5' should not be found
-
+    /* Case: Deleting the last element */
     queue_delete(newQueue, &dataArray[9]); // Delete '10'
     TEST_ASSERT(queue_delete(newQueue, &dataArray[9]) != 0); // '10' should not be found
 }
 
 void test_length() {
     int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
+    fprintf(stderr, "*** TEST queue_length ***\n");
+
+    /* Case: Queue is NULL, return -1 */
     queue_t newQueue = NULL;
     TEST_ASSERT(queue_length(newQueue) == -1);
+    /* Case: Queue is empty, return 0 */
     newQueue = queue_create();
     TEST_ASSERT(queue_length(newQueue) == 0);
-
+    /* Case: Queue is of length 10, return 10 */
     for(int i = 0; i < 10; i++) {
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
-
-    printf("%d\n", queue_length(newQueue));
-
     TEST_ASSERT(queue_length(newQueue) == 10);
+    /* Case : Queue is empty from all the dequeue, return 0 */
+    int *ptr;
+    for(int i = 0; i < 10; i++) {
+        queue_dequeue(newQueue, (void**)&ptr);
+    } // Dequeue all 10 elements
+    TEST_ASSERT(queue_length(newQueue) == 0);
 }
 
-/*
-void test_iterate() {
+int add_n(void *data, void *arg) {
+    *(int*)data += *(int*)arg;
+
+    return 0;
+}
+
+void test_iterate(){
     int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
     queue_t newQueue = queue_create();
+    int *ptr;
+
     for(int i = 0; i < 10; i++) {
         queue_enqueue(newQueue, &dataArray[i]);
     } // Enqueue 1-10
-    print_queue(newQueue);
 
     queue_iterate(newQueue, add_n, &dataArray[9], NULL);
-    print_queue(newQueue);
-
+    queue_dequeue(newQueue, (void**) &ptr);
+    TEST_ASSERT(*ptr == 11); // 1 + 10
+    queue_dequeue(newQueue, (void**) &ptr);
+    TEST_ASSERT(*ptr == 12); // 2 + 10
 }
-*/ // Need add_n
+
 int main(void)
 {
 	test_create();
@@ -131,7 +128,7 @@ int main(void)
 	test_destroy();
     test_delete();
     test_length();
-    //test_iterate();
+    test_iterate();
 
 	return 0;
 }
