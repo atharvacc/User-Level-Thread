@@ -65,7 +65,7 @@ void test_preempt_uncooperative(void *arg) {
 
 void test_preempt_disable(void *arg) {
     /* Test if preempt is disable during special uthread operations */
-    uthread_join(uthread_create())
+    uthread_join(uthread_create(thread1_disable, NULL), NULL);
 }
 
 int main(void)
