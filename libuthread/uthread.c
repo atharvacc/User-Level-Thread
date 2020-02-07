@@ -94,7 +94,6 @@ int unblock()
 present thread, destroy the exited thread and then continue the current process */
 int unblock_zombie(uthread_t tid)
 {
-
 	void *zombieThread;
 	if (queue_iterate(ZOMBIE, find_tid, (void*)(long)tid, &zombieThread) == 0){
 		struct TCB *threadZombie = (struct TCB*)zombieThread ;

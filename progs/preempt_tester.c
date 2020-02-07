@@ -8,6 +8,7 @@
  * Hence, the desired output of the test should be:
  *
  * "Inside Thread that wouldn't run without Preemption"
+ * "Back to non-cooperative thread!"
  */
 
 #include <signal.h>
@@ -38,6 +39,8 @@ int thread1(void* arg)
     while(difftime(current_time, start_time) < 5) {
         time(&current_time);
     } // 5 seconds loop
+
+    printf("Back to non-cooperative thread!\n");
 
     return 0;
 } // thread1()
