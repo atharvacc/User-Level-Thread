@@ -3,22 +3,18 @@ lib := libuthread.a
 
 objs := queue.o uthread.o context.o preempt.o libuthread.a
 
-
 CC := gcc
-CFLAGS := -Wall -Wextra
+CFLAGS := -Wall -Wextra -Werror
 
 all: $(lib)
 
+deps := $(patsubst %.o,%.d,$(objs))
+-include $(deps)
+DEPFLAGS = -MMD -MF $(@:.o=.d)
+
 libuthread.a: $(objs)
 	ar rcs libuthread.a $(objs)
-queue.o: queue.c queue.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-uthread.o: uthread.c uthread.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-context.o: context.c context.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-preempt.o: preempt.c preempt.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $< $(DEFFLAGS)
 clean:
 	rm -f $(objs)
