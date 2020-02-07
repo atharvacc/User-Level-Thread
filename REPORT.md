@@ -41,17 +41,17 @@ For this function, we basically loop over the loop, and increment the count as w
 To test the functions of the Queue, we wrote a test for each function to check whether they are working
 properly or not, including the edge cases.
 
-**test_create():**
+- _test_create():_ Check whether the Queue is NULL or not (if it's not NULL, we have allocated space)
 
-**test_queue_simple()**
+- _test_queue_simple():_ Check whether enqueue and dequeue work or not
 
-**test_destroy()**
+- _test_destroy():_ Check whether we are calling free on valid Queues (Queue != NULL, and Queue is empty) or not
 
-**test_delete()**
+- _test_delete():_ Check whether we have deleted a certain element from the queue or not
 
-**test_length()**
+- _test_length():_ Check whether the length is correct or not (Empty, with some elements, empty due to 'delete'/'dequeue'
 
-**test_iterate()**
+- _test_iterate():_ Check whether we are changing the data inside the queue or not. Stop prematurely if func's retval = 1
 
 ### UThread Implementation
 
