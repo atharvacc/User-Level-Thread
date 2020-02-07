@@ -4,54 +4,54 @@ For this part, we have chosen Linked List as the data structure for the Queue ov
 The reason is that the LinkedList provide an O(1) time for 'enqueue' and 'dequeue' operations,
 as requested by the prompt; while an Array provide an O(1) amortized time for 'enqueue' and 'dequeue'.
 
-#### queue_create()
+#### queue_create
 For this function, we use malloc to allocate space for the queue, and add a check to see whether malloc
 was successfully executed or not
 
-#### queue_destroy()
+#### queue_destroy
 For this function, we use 'free' to deallocate space of the queue. Add check for when queue is NULL
 or queue is empty
 
-#### queue_enqueue()
+#### queue_enqueue
 For this function, we first check that the Queue is not NULL, and the Data to enqueue is not NULL. Then,
 if it's an empty queue, we allocate space for a Linked List Node in the Queue, saves the data there, and
 set that node as the head of the Queue. If the queue is not empty, we also allocate space for a Node, and
 add that Node to the back of the queue, which can be accessed by 'queue->back->next'. Update the back node.
 
-#### queue_dequeue() 
+#### queue_dequeue 
 For this function, we check for Queue is NULL/Queue is Empty/Data is NULL. We saved the data from the Node we
 are dequeueing to 'data'. We then free that Node (first node of Queue), and then update the head to head->next.
 
-#### queue_delete()
+#### queue_delete
 For this function, we first loop over to find the Node previous to the Node that holds the data we want. 
 We do this because we want to be able to update the previous Node's next to the Node after the Node we want; or 
 else we can't keep the list linked. We add edge cases for when deleting the first or last element of the queue; 
 that is because for those two operations, we need to update the Queue's head and back.
 
-#### queue_iterate()
+#### queue_iterate
 For this function, we used the call back function 'func' to update the data of the queue.
 What to be noted is that those functions should not be able to manipulate the queue, just the data. We check
 for the function return value; if it is 1, we would stop prematurely, and not updating the elements after that.
 In addition, if the pointer to data list is not NULL, we would save the node's data to that data list.
 
-#### queue_length()
+#### queue_length
 For this function, we basically loop over the loop, and increment the count as we go.
 
 #### Testing
 To test the functions of the Queue, we wrote a test for each function to check whether they are working
 properly or not, including the edge cases.
 
-- _test_create():_ Check whether the Queue is NULL or not (if it's not NULL, we have allocated space)
+- _test_create:_ Check whether the Queue is NULL or not (if it's not NULL, we have allocated space)
 
-- _test_queue_simple():_ Check whether enqueue and dequeue work or not
+- _test_queue_simple:_ Check whether enqueue and dequeue work or not
 
-- _test_destroy():_ Check whether we are calling free on valid Queues (Queue != NULL, and Queue is empty) or not
+- _test_destroy:_ Check whether we are calling free on valid Queues (Queue != NULL, and Queue is empty) or not
 
-- _test_delete():_ Check whether we have deleted a certain element from the queue or not
+- _test_delete:_ Check whether we have deleted a certain element from the queue or not
 
-- _test_length():_ Check whether the length is correct or not (Empty, with some elements, empty due to 'delete'/'dequeue'
+- _test_length:_ Check whether the length is correct or not (Empty, with some elements, empty due to 'delete'/'dequeue'
 
-- _test_iterate():_ Check whether we are changing the data inside the queue or not. Stop prematurely if func's retval = 1
+- _test_iterate:_ Check whether we are changing the data inside the queue or not. Stop prematurely if func's retval = 1
 
 ### UThread Implementation
 
