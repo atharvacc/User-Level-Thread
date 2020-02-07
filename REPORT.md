@@ -134,12 +134,27 @@ present anywhere and we return a -1.
 o store the return value, it is actually assigned to it after joining.
 - We added a yield statement without creating a thread to check if we return wit
 hout our code crashing.
+- For uthread, other than uthread_hello and uthread_yield, we also create
+another tester called uthread_join. The goal of this tester is to test
+whether join is actually blocking the parent process until the child died.
+The output of this test should be 'thread3','thread2', then 'thread1'. 
 
 ### Preempt Implementation and usage within uthread
 - We have a signal handler that just calls uthread_yield after the timer goes 
 off.
 - For disabling, we define an empty sigset_t  and the the SIGVTALRM signal to it
 . We use sigprocmask to disable and enable the preempts.
+
+#### Testing
+- To test our Preempt Implementation, we checked whether the preempt would
+forcefully make a non-cooperative thread yield or not. In our test, we
+set up two threads: thread1 (non-cooperative thread), and thread2 (thread
+created from thread1). 'thread1' would run through a loop doing nothing for
+5 seconds, and if during that period of 5 seconds, thread2 prints out its
+statement; that means preemption has successfully switched to thread2 even
+without thread1 yielding. In addition, we also add a print statement after
+the 5 seconds loop of thread1, to show that we would get back to thread1
+after thread2 was called.
 
 ##### Usage within uthread.c
 - uthread_yield: We disable the preempt when do the swap between the currently e
