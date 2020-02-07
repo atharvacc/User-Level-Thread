@@ -21,16 +21,11 @@
 
 #include <uthread.h>
 
-
-/* Global variables */
-int thread2_on = 0;
-
 int thread2(void* arg)
 {
-    thread2_on = 1;
     printf("Inside Thread that wouldn't run without Preemption\n");
     return 0;
-}
+} // thread2()
 
 int thread1(void* arg)
 {
@@ -45,7 +40,7 @@ int thread1(void* arg)
     } // 5 seconds loop
 
     return 0;
-}
+} // thread1()
 
 int main(void)
 {
@@ -53,4 +48,4 @@ int main(void)
     uthread_join(uthread_create(thread1, NULL), NULL);
 
     return 0;
-}
+} // preempt_tester()

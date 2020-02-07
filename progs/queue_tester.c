@@ -19,9 +19,9 @@ do {						\
 void test_create(void)
 {
 	fprintf(stderr, "*** TEST create ***\n");
-
 	TEST_ASSERT(queue_create() != NULL);
-}
+
+} // test_create()
 
 /* Destroy */
 void test_destroy(void) {
@@ -38,7 +38,8 @@ void test_destroy(void) {
     // Check: Queue is successfully destroyed
     newQueue = queue_create();
     TEST_ASSERT(queue_destroy(newQueue) == 0);
-}
+
+} // test_destroy()
 
 /* Enqueue/Dequeue simple */
 void test_queue_simple(void)
@@ -52,7 +53,8 @@ void test_queue_simple(void)
 	queue_enqueue(q, &data);
 	queue_dequeue(q, (void**)&ptr);
 	TEST_ASSERT(ptr == &data);
-}
+
+} // test_queue_simple()
 
 /* Delete Queue */
 void test_delete(void) {
@@ -74,7 +76,8 @@ void test_delete(void) {
     /* Case: Deleting the last element */
     queue_delete(newQueue, &dataArray[9]); // Delete '10'
     TEST_ASSERT(queue_delete(newQueue, &dataArray[9]) != 0); // '10' should not be found
-}
+
+} // test_delete()
 
 void test_length() {
     int dataArray[10] = {1,2,3,4,5,6,7,8,9,10};
@@ -97,19 +100,19 @@ void test_length() {
         queue_dequeue(newQueue, (void**)&ptr);
     } // Dequeue all 10 elements
     TEST_ASSERT(queue_length(newQueue) == 0);
-}
+} // test_length()
 
 int add_n(void *data, void *arg) {
     *(int*)data += *(int*)arg;
 
     return 0;
-}
+} // add_n()
 
 int add_n_1(void *data, void *arg) {
     *(int*)data += *(int*)arg;
 
     return 1;
-}
+} // add_n_1()
 
 void test_iterate() {
     int dataArray[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -132,7 +135,7 @@ void test_iterate() {
     TEST_ASSERT(*ptr == 33);
     queue_dequeue(newQueue, (void **) &ptr);
     TEST_ASSERT(*ptr == 14); // 13 + 10 {14 15 16 17 18 19 20}
-}
+} // test_iterate()
 
 int main(void)
 {
@@ -144,4 +147,4 @@ int main(void)
     test_iterate();
 
 	return 0;
-}
+} // queue_tester main()

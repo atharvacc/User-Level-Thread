@@ -10,33 +10,33 @@
 #include "preempt.h"
 #include "uthread.h"
 
-
 /*
  * Frequency of preemption
  * 100Hz is 100 times per second
  */
 #define HZ 100
+
 struct sigaction sa;
 struct itimerval timer;
 sigset_t set ; // Set for blocking signals
 
 void signal_handler(){
 	uthread_yield();
-}
+} // signal_handler()
 
 void preempt_disable(void)
 {
 	sigemptyset(&set); // Set set to empty set
 	sigaddset(&set, SIGVTALRM); // add SIGVT TO ALARM
 	sigprocmask(SIG_BLOCK, &set, NULL);
-}
+} // preempt_disable()
 
 void preempt_enable(void)
 {
 	sigemptyset(&set);
 	sigaddset(&set, SIGVTALRM);
 	sigprocmask(SIG_UNBLOCK, &set, NULL);
-}
+} // sigprocmask()
 
 void preempt_start(void)
 {
@@ -48,4 +48,4 @@ void preempt_start(void)
 	timer.it_interval.tv_sec = 0;
 	timer.it_interval.tv_usec = HZ/10;
 	setitimer (ITIMER_VIRTUAL, &timer, NULL);
-} 
+} // preempt_start()

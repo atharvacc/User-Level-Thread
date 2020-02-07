@@ -19,22 +19,22 @@
 int thread3(void *arg) {
     printf("thread%d\n", uthread_self());
     return 0;
-}
+} // thread3()
 
 int thread2(void *arg) {
     uthread_join(uthread_create(thread3, NULL), NULL);
     printf("thread%d\n", uthread_self());
     return 0;
-}
+} // thread2()
 
 int thread1(void *arg) {
     uthread_join(uthread_create(thread2, NULL), NULL);
     printf("thread%d\n", uthread_self());
 
     return 0;
-}
+} // thread1()
 
 int main(void) {
     uthread_join(uthread_create(thread1, NULL), NULL);
     return 0;
-}
+} // uthread_join main()

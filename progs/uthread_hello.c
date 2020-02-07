@@ -13,7 +13,7 @@ int hello(void* arg)
 {
 	printf("Hello world!\n");
 	return 2;
-}
+} // hello()
 
 int main(void)
 {
@@ -24,4 +24,4 @@ int main(void)
 	uthread_join(tid, retval);
 	printf("retval is : %d\n", *retval); // Check if hello world returns the correct value
 	return 0;
-}
+} // uthread_hello main()

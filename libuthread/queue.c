@@ -7,6 +7,7 @@
 
 /* Choosing Linked List over Array due to enqueue() and dequeue() being O(1)
  as required by the assignment. (Array's enqueue() and dequeue() is Armortized O(1) */
+
 struct Node {
     void *data;
     struct Node* next;
@@ -144,25 +145,27 @@ int queue_iterate(queue_t queue, queue_func_t func, void *arg, void **data)
 	    if(data != NULL) {
 	        *data = queue->back->data;
 	    }
-	    return 0;
 	}
 
     return 0;
-}
+} // queue_iterate()
 
 int queue_length(queue_t queue)
 {
-    int count = 0;
+    int count = 0; // To keep count of queue_length
 
-	if(queue == NULL)
+    if(queue == NULL) {
 	    return -1;
-	if(queue->head == NULL)
+    } // If: queue is NULL
+
+	if(queue->head == NULL) {
 	    return 0;
+	} // If: queue is Empty
 
     for(struct Node *current = queue->head; current != queue->back; current = current->next) {
         count += 1;
-    }
+    } // Loop: through queue to increment count
 
 	return count + 1; // To take into account the last element
-} // Has error. for empty queue doesn't wokr as expected
+} // queue_length()
 

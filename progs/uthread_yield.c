@@ -20,7 +20,7 @@ int thread3(void* arg)
 	uthread_yield();
 	printf("thread%d\n", uthread_self());
 	return 0;
-}
+} // thread3()
 
 int thread2(void* arg)
 {
@@ -28,7 +28,7 @@ int thread2(void* arg)
 	uthread_yield();
 	printf("thread%d\n", uthread_self());
 	return 0;
-}
+} // thread2()
 
 int thread1(void* arg)
 {
@@ -37,10 +37,10 @@ int thread1(void* arg)
 	printf("thread%d\n", uthread_self());
 	uthread_yield();
 	return 0;
-}
+} // thread1()
 
 int main(void)
 {
 	uthread_join(uthread_create(thread1, NULL), NULL);
 	return 0;
-}
+} // uthread_yield main()
