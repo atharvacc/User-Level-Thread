@@ -242,7 +242,7 @@ int uthread_join(uthread_t tid, int *retval)
 		return 0;
 	}
 
-	else if ( in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
+	else if (in_ready(tid) == 1)  // Else if it in READY queue waiting to be executed, then block current one and execute next in READY QUEUE
 	{
 		if (retval != NULL){ // If retval is not null then we want to save  the returned thread a certain value
 			cur_tcb->retValSave = retval;
@@ -257,7 +257,6 @@ int uthread_join(uthread_t tid, int *retval)
 		}
 		preempt_enable();
 		return 0;
-
 	}
 	
 	else{ // Couldn't find in BLOCKED or READY and isn't presently Runnning 

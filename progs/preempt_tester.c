@@ -1,3 +1,15 @@
+/*
+ * Preemption Test
+ *
+ * Tests whether preemption is currently happen, where we would yield to
+ * another thread even when a non-cooperative thread is hogging the process,
+ * and is not yielding.
+ *
+ * Hence, the desired output of the test should be:
+ *
+ * "Inside Thread that wouldn't run without Preemption"
+ */
+
 #include <signal.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -9,16 +21,6 @@
 
 #include <uthread.h>
 
-#define TEST_ASSERT(assert)			\
-do {						\
-	printf("ASSERT: " #assert " ... ");	\
-	if (assert) {				\
-		printf("PASS\n");		\
-	} else	{				\
-		printf("FAIL\n");		\
-		exit(1);			\
-	}					\
-} while(0)
 
 /* Global variables */
 int thread2_on = 0;
@@ -26,52 +28,29 @@ int thread2_on = 0;
 int thread2(void* arg)
 {
     thread2_on = 1;
-    printf("In thread 2\n");
+    printf("Inside Thread that wouldn't run without Preemption\n");
     return 0;
 }
 
 int thread1(void* arg)
 {
     uthread_create(thread2, NULL);
-    while(1) {
-        if(thread2_on == 1)
-            break;
-    } // Infinite loop
+
+    time_t start_time, current_time;
+    time(&start_time);
+    time(&current_time);
+
+    while(difftime(current_time, start_time) < 5) {
+        time(&current_time);
+    } // 5 seconds loop
 
     return 0;
-}
-
-int thread1_disable(void* arg)
-{
-    uthread_create(thread2, NULL);
-
-    time_t start, end;
-    time(&start);
-    time(&end);
-
-    while(difftime(end, start) < 10) {
-        time(&end);
-        uthread_create(NULL, NULL);
-    }
-
-    return 0;
-}
-
-void test_preempt_uncooperative(void *arg) {
-    /* Test if preempt is switching operations even if one is non-cooperative */
-    uthread_join(uthread_create(thread1, NULL), NULL);
-    TEST_ASSERT(thread2_on == 1);
-}
-
-void test_preempt_disable(void *arg) {
-    /* Test if preempt is disable during special uthread operations */
-    uthread_join(uthread_create(thread1_disable, NULL), NULL);
 }
 
 int main(void)
 {
-    test_preempt_uncooperative(NULL);
-    test_preempt_disable(NULL);
+    /* Test if preempt is switching operations even if one is non-cooperative */
+    uthread_join(uthread_create(thread1, NULL), NULL);
 
     return 0;
 }

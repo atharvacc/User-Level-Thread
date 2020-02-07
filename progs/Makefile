@@ -5,6 +5,7 @@ programs := \
 	uthread_hello.x \
 	uthread_yield.x \
 	uthread_yield_test.x \
+	uthread_join.x\
 	preempt_tester.x
 
 ## *** IMPORTANT *** ##
